@@ -17,7 +17,19 @@ extension UIImage {
     var lowestQualityJPEGNSData:NSData  { return UIImageJPEGRepresentation(self, 0.0)! as NSData }
 }
 
-class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension UIViewController {
+    func hideKeyboardWhenTappedAround() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+}
+
+class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
     @IBOutlet var username: UITextField!
     @IBOutlet var password: UITextField!
     @IBOutlet var errorPromptField: UILabel!
@@ -26,14 +38,23 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.hideKeyboardWhenTappedAround()
+        self.password.delegate = self
+        username.textContentType = UITextContentType("")
+        password.textContentType = UITextContentType("")
         picker.delegate = self
-        
         // Do any additional setup after loading the view, typically from a nib.
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        self.registerBtnPressed((Any).self)
+        self.view.endEditing(true)
+        return false
     }
     
     func clearDefaults() {
@@ -48,7 +69,7 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
             picker.sourceType = UIImagePickerControllerSourceType.camera
             picker.cameraCaptureMode = .photo
             picker.cameraDevice = .front
-            picker.modalPresentationStyle = .fullScreen
+            picker.modalPresentationStyle = .formSheet
             picker.showsCameraControls = false
             // can be turned to automatic shoot
             present(picker,animated: true,completion: {
@@ -83,10 +104,11 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
         chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage
         
         // add username and password to container
-        Global.container[username.text!] = password.text
+        let hashedPass = password.text?.utf8.md5
+        Global.container[username.text!] = hashedPass?.rawValue
         
         let str64 = imageTobase64(image: chosenImage)
-        print(str64)
+        
         
         // make request in order to enrollment of photo
         sendRequest(image: str64, gallery: "MyGallerry", subject: username.text!)
@@ -119,6 +141,15 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
             errorPromptField.isHidden = false
             return
         }
+        
+        let userIsExists = Global.container.keys.contains { (keys) -> Bool in
+            keys as String == username.text!
+        }
+        if (userIsExists) {
+            errorPromptField.text = "Username exists."
+            errorPromptField.isHidden = false
+            return
+        }
 
         let camaraAlert = UIAlertController(title: "Photo?", message: "Take a photo with camera or choose a photo from Photo Library", preferredStyle: UIAlertControllerStyle.alert)
         
@@ -131,6 +162,19 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
         }))
         
         present(camaraAlert, animated: true, completion: nil)
+    }
+    
+    func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "test"{
+            let vc = segue.destination as! LoggedInViewController
+            vc.username.text = self.username.text
+            //Data has to be a variable name in your RandomViewController
+        }
+    }
+    
+    @IBAction func backFromModal(segue: UIStoryboardSegue) {
+        // Switch to the second tab (tabs are numbered 0, 1, 2)
+        self.tabBarController?.selectedIndex = 1
     }
     
     func sendRequest(image: String, gallery: String, subject: String) {
@@ -178,8 +222,10 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
                 
                 print("URL Session Task Succeeded: HTTP \(statusCode)")
                 let responseJSON = try? JSONSerialization.jsonObject(with: data!, options: [])
+                print(responseJSON)
                 if let responseJSON = responseJSON as? [String: Any] {
-                    print(responseJSON)
+                    // response exist, look for response if ok, redirect to other page
+                    self.performSegue(withIdentifier: "register", sender: self)
                 }
             }
             else {

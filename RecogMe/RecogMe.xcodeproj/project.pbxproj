@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0157B16E1F88E93E00DBF9F4 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0157B16C1F88E93E00DBF9F4 /* Crashlytics.framework */; };
-		0157B16F1F88E93E00DBF9F4 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0157B16D1F88E93E00DBF9F4 /* Fabric.framework */; };
+		01081EE41F8BFC7E007AD1E8 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01081EE31F8BFC7E007AD1E8 /* SwiftyJSON.framework */; };
+		01A507701F8D402E008C3535 /* LoggedInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A5076F1F8D402D008C3535 /* LoggedInViewController.swift */; };
+		01A507721F8D5E96008C3535 /* MD5Digest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A507711F8D5E96008C3535 /* MD5Digest.swift */; };
 		01B7656E1F87BD54000BDBAA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B7656D1F87BD54000BDBAA /* AppDelegate.swift */; };
 		01B765701F87BD54000BDBAA /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B7656F1F87BD54000BDBAA /* FirstViewController.swift */; };
 		01B765721F87BD54000BDBAA /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B765711F87BD54000BDBAA /* SecondViewController.swift */; };
@@ -38,8 +39,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0157B16C1F88E93E00DBF9F4 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = SOURCE_ROOT; };
-		0157B16D1F88E93E00DBF9F4 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = SOURCE_ROOT; };
+		01081EE31F8BFC7E007AD1E8 /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = Carthage/Build/iOS/SwiftyJSON.framework; sourceTree = "<group>"; };
+		01A5076F1F8D402D008C3535 /* LoggedInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedInViewController.swift; sourceTree = "<group>"; };
+		01A507711F8D5E96008C3535 /* MD5Digest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MD5Digest.swift; sourceTree = "<group>"; };
 		01B7656A1F87BD54000BDBAA /* RecogMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RecogMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		01B7656D1F87BD54000BDBAA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		01B7656F1F87BD54000BDBAA /* FirstViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstViewController.swift; sourceTree = "<group>"; };
@@ -62,8 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0157B16E1F88E93E00DBF9F4 /* Crashlytics.framework in Frameworks */,
-				0157B16F1F88E93E00DBF9F4 /* Fabric.framework in Frameworks */,
+				01081EE41F8BFC7E007AD1E8 /* SwiftyJSON.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +85,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		01081EE21F8BFC7D007AD1E8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				01081EE31F8BFC7E007AD1E8 /* SwiftyJSON.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		01B765611F87BD53000BDBAA = {
 			isa = PBXGroup;
 			children = (
@@ -91,6 +100,7 @@
 				01B765831F87BD54000BDBAA /* RecogMeTests */,
 				01B7658E1F87BD54000BDBAA /* RecogMeUITests */,
 				01B7656B1F87BD54000BDBAA /* Products */,
+				01081EE21F8BFC7D007AD1E8 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -110,13 +120,13 @@
 				01B7656D1F87BD54000BDBAA /* AppDelegate.swift */,
 				01F5F76C1F882034008EE8E5 /* Global.swift */,
 				01B7656F1F87BD54000BDBAA /* FirstViewController.swift */,
+				01A5076F1F8D402D008C3535 /* LoggedInViewController.swift */,
 				01B765711F87BD54000BDBAA /* SecondViewController.swift */,
+				01A507711F8D5E96008C3535 /* MD5Digest.swift */,
 				01B765731F87BD54000BDBAA /* Main.storyboard */,
 				01B765761F87BD54000BDBAA /* Assets.xcassets */,
 				01B765781F87BD54000BDBAA /* LaunchScreen.storyboard */,
 				01B7657B1F87BD54000BDBAA /* Info.plist */,
-				0157B16C1F88E93E00DBF9F4 /* Crashlytics.framework */,
-				0157B16D1F88E93E00DBF9F4 /* Fabric.framework */,
 			);
 			path = RecogMe;
 			sourceTree = "<group>";
@@ -149,7 +159,7 @@
 				01B765661F87BD53000BDBAA /* Sources */,
 				01B765671F87BD53000BDBAA /* Frameworks */,
 				01B765681F87BD53000BDBAA /* Resources */,
-				0157B16B1F88E90D00DBF9F4 /* ShellScript */,
+				01081EE51F8BFC92007AD1E8 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -270,19 +280,20 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0157B16B1F88E90D00DBF9F4 /* ShellScript */ = {
+		01081EE51F8BFC92007AD1E8 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Carthage/Build/iOS/SwiftyJSON.framework",
 			);
 			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/SwiftyJSON.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "./Fabric.framework/run 4549575730ce351b3bad4a100ced5b4b8ebf94b0 82b381354a0844510c057c08d0b4aac6a7251bb2e5cf4e393b565993bbec7221";
-			showEnvVarsInLog = 0;
+			shellScript = "/usr/local/bin/carthage copy-frameworks";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -291,8 +302,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01A507721F8D5E96008C3535 /* MD5Digest.swift in Sources */,
 				01F5F76D1F882034008EE8E5 /* Global.swift in Sources */,
 				01B765721F87BD54000BDBAA /* SecondViewController.swift in Sources */,
+				01A507701F8D402E008C3535 /* LoggedInViewController.swift in Sources */,
 				01B7656E1F87BD54000BDBAA /* AppDelegate.swift in Sources */,
 				01B765701F87BD54000BDBAA /* FirstViewController.swift in Sources */,
 			);
@@ -465,6 +478,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = RecogMe/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
@@ -485,6 +499,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = RecogMe/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.1;

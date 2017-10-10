@@ -8,6 +8,7 @@
 
 import UIKit
 import Foundation
+import SwiftyJSON
 
 class SecondViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     @IBOutlet var username: UITextField!
@@ -15,10 +16,13 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
     @IBOutlet var errorPromptField: UILabel!
     let picker = UIImagePickerController()
     var chosenImage:UIImage = UIImage()
-    
+    var succeded:Bool = false
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.hideKeyboardWhenTappedAround() 
         picker.delegate = self
+        username.textContentType = UITextContentType("")
+        password.textContentType = UITextContentType("")
         // Do any additional setup after loading the view, typically from a nib.
     }
 
@@ -67,7 +71,6 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
         chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage
         
         let str64 = imageTobase64(image: chosenImage)
-        print(str64)
         
         // make request in order to enrollment of photo
         sendRequest(image: str64, gallery: "MyGallerry", subject: username.text!)
@@ -93,7 +96,8 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
         print(Global.container)
         if let pass = Global.container[username.text!] {
             // user exists check for password
-            if password.text! == pass {
+            let hashedPass = password.text?.utf8.md5
+            if hashedPass!.rawValue == pass {
                 // password matched
                 // take a photo of subject
                 //openCamera()
@@ -124,6 +128,14 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
             // there is no user with this username, error prompt
             errorPromptField.text = "No username with this"
             errorPromptField.isHidden = false
+        }
+    }
+    
+    func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "test"{
+            let vc = segue.destination as! LoggedInViewController
+            vc.username.text = self.username.text
+            //Data has to be a variable name in your RandomViewController
         }
     }
     
@@ -169,31 +181,27 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
                 // Success
                 let statusCode = (response as! HTTPURLResponse).statusCode
                 print("URL Session Task Succeeded: HTTP \(statusCode)")
-                let responseJSON = try? JSONSerialization.jsonObject(with: data!, options: [])
-                if let responseJSON = responseJSON as? [String:Any] {
-                    print("Login data")
-                    print(responseJSON)
-                    
-                    
-                    if let images = responseJSON["images"] as? [String:Any] {
-                        if let transaction = images["transaction"] as? [String:Any] {
-                            if let status = transaction["status"] as? String {
-                                if status == "success" {
-                                    // face found
-                                    // check if subject_name and username matchs
-                                    if let subject_id = transaction["subject_id"] as? String {
-                                        if subject_id == self.username.text {
-                                            // congratz you are in
-                                            self.errorPromptField.text = "You are logged in!"
-                                            self.errorPromptField.isHidden = false
-                                        }
-                                        
-                                    }
-                                }
-                            }
-                        }
+                //let responseJSON = try? JSONSerialization.jsonObject(with: data!, options: [])
+                
+                let json = JSON(data: data!)
+                print(json)
+                let image = json["images"] as JSON
+                let transaction = (image[0] as JSON)["transaction"].dictionary
+                let succeded = (transaction!["status"] as! JSON).stringValue
+                let subject_id = (transaction!["subject_id"] as! JSON).stringValue
+                let confidence = (transaction!["subject_id"] as! JSON).doubleValue
+                
+                //let transaction = JSON(image!["transaction"])
+                //let success = JSON(transaction.dictionaryValue["success"]!)
+                //let isSuccesed:String = success.stringValue
+                
+                DispatchQueue.main.async { // Correct
+                    if (succeded == "success" && subject_id == self.username.text || confidence > 0.90) {
+                        self.performSegue(withIdentifier: "login", sender: self)
+                    } else {
+                        self.errorPromptField.text = "You are not " + self.username.text! + "!"
+                        self.errorPromptField.isHidden = false
                     }
-                    
                 }
             }
             else {
