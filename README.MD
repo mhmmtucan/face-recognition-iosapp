@@ -13,8 +13,8 @@ of a two factor authentication. [Kairos API](https://www.kairos.com/) used for f
 In order to use API, App ID and key is needed. This variables have to be provided from Kairos web page. After that have to be inserted in code.
     
 ```
-request.addValue("apikeyhere", forHTTPHeaderField: "app_key")
-request.addValue("apii id here", forHTTPHeaderField: "app_id")
+request.addValue("APPKEY_HERE", forHTTPHeaderField: "app_key")
+request.addValue("APPID_HERE", forHTTPHeaderField: "app_id")
 ```
 
 ## Examples
