@@ -11,9 +11,11 @@ import UIKit
 class LoggedInViewController: UIViewController {
 
     @IBOutlet var username: UILabel!
+    var usernameString:String = ""
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        username.text = "\(usernameString)"
         // Do any additional setup after loading the view.
     }
 

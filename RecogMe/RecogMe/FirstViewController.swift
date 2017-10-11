@@ -8,7 +8,7 @@
 
 import UIKit
 import Foundation
-
+import SwiftyJSON
 extension UIImage {
     var highestQualityJPEGNSData:NSData { return UIImageJPEGRepresentation(self, 1.0)! as NSData }
     var highQualityJPEGNSData:NSData    { return UIImageJPEGRepresentation(self, 0.75)! as NSData}
@@ -34,7 +34,11 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
     @IBOutlet var password: UITextField!
     @IBOutlet var errorPromptField: UILabel!
     let picker = UIImagePickerController()
+    
     var chosenImage:UIImage = UIImage()
+    
+    let alert = UIAlertController(title: nil, message: "Processing image...", preferredStyle: .alert)
+    let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,6 +47,9 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
         username.textContentType = UITextContentType("")
         password.textContentType = UITextContentType("")
         picker.delegate = self
+        clearDefaults()
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.gray
         // Do any additional setup after loading the view, typically from a nib.
     }
 
@@ -113,7 +120,13 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
         // make request in order to enrollment of photo
         sendRequest(image: str64, gallery: "MyGallerry", subject: username.text!)
         
-        dismiss(animated: true, completion: nil)
+        dismiss(animated: true, completion: {
+            self.tabBarController?.tabBar.isHidden = true
+            
+            self.loadingIndicator.startAnimating()
+            self.alert.view.addSubview(self.loadingIndicator)
+            self.present(self.alert, animated: true, completion: nil)
+        })
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -131,6 +144,8 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
     }
     
     @IBAction func registerBtnPressed(_ sender: Any) {
+        errorPromptField.isHidden = true
+        errorPromptField.text = ""
         if (username.text?.isEmpty)! {
             errorPromptField.text = "Username should be filled."
             errorPromptField.isHidden = false
@@ -164,17 +179,11 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
         present(camaraAlert, animated: true, completion: nil)
     }
     
-    func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == "test"{
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "register"{
             let vc = segue.destination as! LoggedInViewController
-            vc.username.text = self.username.text
-            //Data has to be a variable name in your RandomViewController
+            vc.usernameString = self.username.text!
         }
-    }
-    
-    @IBAction func backFromModal(segue: UIStoryboardSegue) {
-        // Switch to the second tab (tabs are numbered 0, 1, 2)
-        self.tabBarController?.selectedIndex = 1
     }
     
     func sendRequest(image: String, gallery: String, subject: String) {
@@ -221,22 +230,54 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
                 let statusCode = (response as! HTTPURLResponse).statusCode
                 
                 print("URL Session Task Succeeded: HTTP \(statusCode)")
-                let responseJSON = try? JSONSerialization.jsonObject(with: data!, options: [])
-                print(responseJSON)
-                if let responseJSON = responseJSON as? [String: Any] {
-                    // response exist, look for response if ok, redirect to other page
-                    self.performSegue(withIdentifier: "register", sender: self)
+                
+    
+                let json = JSON(data: data!)
+                print(json)
+                if (json["Errors"] as JSON) != JSON.null {
+                    let ErrCode = ((json["Errors"] as JSON)[0] as JSON)["ErrCode"].intValue
+                    DispatchQueue.main.async {
+                        self.loadingIndicator.stopAnimating()
+                        self.dismiss(animated: true, completion:nil)
+                        self.tabBarController?.tabBar.isHidden = false
+                        Global.container.removeValue(forKey: self.username.text!)
+                        if ErrCode == 5002 {
+                            
+                            self.errorPromptField.text = "No face found in the image!"
+                            self.errorPromptField.isHidden = false
+                            
+                        }
+                        else if ErrCode == 5005 {
+                            self.errorPromptField.text = "Try with another photo!"
+                            self.errorPromptField.isHidden = false
+                        }
+                        else if ErrCode == 5010 {
+                            self.errorPromptField.text = "Too many face in image!"
+                            self.errorPromptField.isHidden = false
+                        }
+                    }
+                    
+                } else {
+                    DispatchQueue.main.async {
+                        self.dismiss(animated: true, completion: {
+                            self.tabBarController?.tabBar.isHidden = false
+                            self.performSegue(withIdentifier: "register", sender: self)
+                        })
+                        
+                    }
                 }
             }
             else {
                 // Failure
                 print("URL Session Task Failed: %@", error!.localizedDescription);
+                DispatchQueue.main.async {
+                    self.errorPromptField.text = error!.localizedDescription
+                    self.errorPromptField.isHidden = false
+                }
             }
         })
         task.resume()
         session.finishTasksAndInvalidate()
     }
-    
-
 }
 

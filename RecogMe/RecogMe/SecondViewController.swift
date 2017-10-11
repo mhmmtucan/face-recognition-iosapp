@@ -17,12 +17,18 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
     let picker = UIImagePickerController()
     var chosenImage:UIImage = UIImage()
     var succeded:Bool = false
+    
+    let alert = UIAlertController(title: nil, message: "Processing image...", preferredStyle: .alert)
+    let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.hideKeyboardWhenTappedAround() 
         picker.delegate = self
         username.textContentType = UITextContentType("")
         password.textContentType = UITextContentType("")
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.gray
         // Do any additional setup after loading the view, typically from a nib.
     }
 
@@ -67,6 +73,11 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
         present(alertVC, animated: true,completion: nil)
     }
     
+    @IBAction func backFromModal(segue: UIStoryboardSegue) {
+        // Switch to the second tab (tabs are numbered 0, 1, 2)
+        self.tabBarController?.selectedIndex = 1
+    }
+    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage
         
@@ -75,7 +86,13 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
         // make request in order to enrollment of photo
         sendRequest(image: str64, gallery: "MyGallerry", subject: username.text!)
         
-        dismiss(animated: true, completion: nil)
+        dismiss(animated: true, completion: {
+            self.tabBarController?.tabBar.isHidden = true
+            
+            self.loadingIndicator.startAnimating();
+            self.alert.view.addSubview(self.loadingIndicator)
+            self.present(self.alert, animated: true, completion: nil)
+        })
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -94,6 +111,8 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
 
     @IBAction func loginBtnPressed(_ sender: Any) {
         print(Global.container)
+        errorPromptField.isHidden = true
+        errorPromptField.text = ""
         if let pass = Global.container[username.text!] {
             // user exists check for password
             let hashedPass = password.text?.utf8.md5
@@ -131,11 +150,10 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
         }
     }
     
-    func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == "test"{
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "login"{
             let vc = segue.destination as! LoggedInViewController
-            vc.username.text = self.username.text
-            //Data has to be a variable name in your RandomViewController
+            vc.usernameString = username.text!
         }
     }
     
@@ -181,24 +199,28 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
                 // Success
                 let statusCode = (response as! HTTPURLResponse).statusCode
                 print("URL Session Task Succeeded: HTTP \(statusCode)")
-                //let responseJSON = try? JSONSerialization.jsonObject(with: data!, options: [])
                 
                 let json = JSON(data: data!)
                 print(json)
                 let image = json["images"] as JSON
                 let transaction = (image[0] as JSON)["transaction"].dictionary
-                let succeded = (transaction!["status"] as! JSON).stringValue
-                let subject_id = (transaction!["subject_id"] as! JSON).stringValue
-                let confidence = (transaction!["subject_id"] as! JSON).doubleValue
+                let succeded = (transaction!["status"] as JSON?)!.stringValue
+                var subject_id:String = ""
+                //var confidence:Double = 0
+                if (succeded == "success") {
+                    subject_id = (transaction!["subject_id"] as JSON?)!.stringValue
+                    //confidence = (transaction!["confidence"] as JSON?)!.doubleValue
+                }
                 
-                //let transaction = JSON(image!["transaction"])
-                //let success = JSON(transaction.dictionaryValue["success"]!)
-                //let isSuccesed:String = success.stringValue
-                
-                DispatchQueue.main.async { // Correct
-                    if (succeded == "success" && subject_id == self.username.text || confidence > 0.90) {
-                        self.performSegue(withIdentifier: "login", sender: self)
+                DispatchQueue.main.async {
+                    self.loadingIndicator.stopAnimating()
+                    self.tabBarController?.tabBar.isHidden = false
+                    if (succeded == "success" && subject_id == self.username.text) {
+                        self.dismiss(animated: true, completion: {
+                            self.performSegue(withIdentifier: "login", sender: self)
+                        })
                     } else {
+                        self.dismiss(animated: true, completion: nil)
                         self.errorPromptField.text = "You are not " + self.username.text! + "!"
                         self.errorPromptField.isHidden = false
                     }
@@ -206,7 +228,11 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
             }
             else {
                 // Failure
-                print("URL Session Task Failed: %@", error!.localizedDescription);
+                print("URL Session Task Failed: %@", error!.localizedDescription)
+                DispatchQueue.main.async {
+                    self.errorPromptField.text = error!.localizedDescription
+                    self.errorPromptField.isHidden = false
+                }
             }
         })
         task.resume()

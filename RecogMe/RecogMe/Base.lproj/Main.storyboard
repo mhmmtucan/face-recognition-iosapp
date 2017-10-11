@@ -160,7 +160,7 @@
                                 </state>
                                 <connections>
                                     <action selector="goBack:" destination="6SW-hT-TMG" eventType="touchUpInside" id="L3O-Wq-jVs"/>
-                                    <segue destination="BRe-sh-tfb" kind="unwind" identifier="goBack" unwindAction="backFromModalWithSegue:" id="BcO-sY-ja9"/>
+                                    <segue destination="BRe-sh-tfb" kind="unwind" identifier="goBack" unwindAction="backFromModalWithSegue:" id="TEZ-9Q-kmc"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="You succesfully logged in." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zqA-g0-c7D">
@@ -214,6 +214,6 @@
         <image name="second" width="28" height="28"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="vrQ-SK-uU1"/>
+        <segue reference="iWj-B0-Cbb"/>
     </inferredMetricsTieBreakers>
 </document>
