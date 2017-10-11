@@ -19,9 +19,11 @@ request.addValue("APPID_HERE", forHTTPHeaderField: "app_id")
 
 ## Examples
 First user has to register using username and password, as a second factor authentication a photo of user face will be used. It will be choosed from either from Photo Library or shooted directly within app. 
+
 ![](https://github.com/mhmmtucan/project1-1/blob/master/docs/gifs/register.gif)
 
 After that, user can login using that username-photo combination
+
 ![](https://github.com/mhmmtucan/project1-1/blob/master/docs/gifs/login.gif)
 
 If someone try to login using username-password, it will prompt error.
