@@ -14,6 +14,9 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
     @IBOutlet var username: UITextField!
     @IBOutlet var password: UITextField!
     @IBOutlet var errorPromptField: UILabel!
+    @IBOutlet var visView: UIVisualEffectView!
+    @IBOutlet var countLabel: UILabel!
+    var count = 0
     let picker = UIImagePickerController()
     var chosenImage:UIImage = UIImage()
     var succeded:Bool = false
@@ -53,12 +56,12 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
             noCamera()
         }
     }
-    
+    /* only for test usage
     func openPhotoLibrary() {
         picker.allowsEditing = true
         picker.sourceType = .photoLibrary
         present(picker, animated: true, completion: nil)
-    }
+    }*/
     
     func noCamera(){
         let alertVC = UIAlertController(
@@ -88,7 +91,7 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
         
         dismiss(animated: true, completion: {
             self.tabBarController?.tabBar.isHidden = true
-            
+            self.visView.isHidden = true
             self.loadingIndicator.startAnimating();
             self.alert.view.addSubview(self.loadingIndicator)
             self.present(self.alert, animated: true, completion: nil)
@@ -108,6 +111,8 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
         }
         return base64String
     }
+    
+    
 
     @IBAction func loginBtnPressed(_ sender: Any) {
         print(Global.container)
@@ -119,8 +124,21 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
             if hashedPass!.rawValue == pass {
                 // password matched
                 // take a photo of subject
-                //openCamera()
+                // notify user after 3 second photo will be taken
+                count = 3
+                countLabel.text = "3"
+                self.tabBarController?.tabBar.isHidden = true
+                visView.isHidden = false
                 
+                DispatchQueue.main.async {
+                    var _ = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateCounter), userInfo: nil, repeats: true)
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(3), execute: {
+                    self.openCamera()
+                })
+                
+                /* for test usage
                 let camaraAlert = UIAlertController(title: "Photo?", message: "Take a photo with camera or choose a photo from Photo Library", preferredStyle: UIAlertControllerStyle.alert)
                 
                 camaraAlert.addAction(UIAlertAction(title: "Camera", style: .cancel, handler: { (action: UIAlertAction!) in
@@ -130,9 +148,9 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
                 camaraAlert.addAction(UIAlertAction(title: "Library", style: .default, handler: { (action: UIAlertAction!) in
                     self.openPhotoLibrary()
                 }))
-                
+ 
                 present(camaraAlert, animated: true, completion: nil)
-                
+                */
                 // make request for that face
                 // if subject id is the same with username then give pass
                 
@@ -147,6 +165,13 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
             // there is no user with this username, error prompt
             errorPromptField.text = "No username with this"
             errorPromptField.isHidden = false
+        }
+    }
+    
+    @objc func updateCounter() {
+        if(count > 0) {
+            countLabel.text = String(count)
+            count = count - 1
         }
     }
     
@@ -202,27 +227,51 @@ class SecondViewController: UIViewController, UIImagePickerControllerDelegate, U
                 
                 let json = JSON(data: data!)
                 print(json)
-                let image = json["images"] as JSON
-                let transaction = (image[0] as JSON)["transaction"].dictionary
-                let succeded = (transaction!["status"] as JSON?)!.stringValue
-                var subject_id:String = ""
-                //var confidence:Double = 0
-                if (succeded == "success") {
-                    subject_id = (transaction!["subject_id"] as JSON?)!.stringValue
-                    //confidence = (transaction!["confidence"] as JSON?)!.doubleValue
-                }
                 
-                DispatchQueue.main.async {
-                    self.loadingIndicator.stopAnimating()
-                    self.tabBarController?.tabBar.isHidden = false
-                    if (succeded == "success" && subject_id == self.username.text) {
-                        self.dismiss(animated: true, completion: {
-                            self.performSegue(withIdentifier: "login", sender: self)
-                        })
-                    } else {
-                        self.dismiss(animated: true, completion: nil)
-                        self.errorPromptField.text = "You are not " + self.username.text! + "!"
-                        self.errorPromptField.isHidden = false
+                // no error
+                if (json["images"] as JSON) != JSON.null {
+                    let image = json["images"] as JSON
+                    let transaction = (image[0] as JSON)["transaction"].dictionary
+                    let succeded = (transaction!["status"] as JSON?)!.stringValue
+                    var subject_id:String = ""
+                    // in case of confidence needed use this
+                    //var confidence:Double = 0
+                    if (succeded == "success") {
+                        subject_id = (transaction!["subject_id"] as JSON?)!.stringValue
+                        //confidence = (transaction!["confidence"] as JSON?)!.doubleValue
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self.loadingIndicator.stopAnimating()
+                        self.tabBarController?.tabBar.isHidden = false
+                        if (succeded == "success" && subject_id == self.username.text) {
+                            self.dismiss(animated: true, completion: {
+                                self.performSegue(withIdentifier: "login", sender: self)
+                            })
+                        } else {
+                            self.dismiss(animated: true, completion: nil)
+                            self.errorPromptField.text = "You are not " + self.username.text! + "!"
+                            self.errorPromptField.isHidden = false
+                        }
+                    }
+                } else { // error
+                    let ErrCode = ((json["Errors"] as JSON)[0] as JSON)["ErrCode"].intValue
+                    DispatchQueue.main.async {
+                        self.loadingIndicator.stopAnimating()
+                        self.dismiss(animated: true, completion:nil)
+                        self.tabBarController?.tabBar.isHidden = false
+                        if ErrCode == 5002 {
+                            self.errorPromptField.text = "No face found in the image!"
+                            self.errorPromptField.isHidden = false
+                        }
+                        else if ErrCode == 5005 {
+                            self.errorPromptField.text = "Try with another photo!"
+                            self.errorPromptField.isHidden = false
+                        }
+                        else if ErrCode == 5010 {
+                            self.errorPromptField.text = "Too many face in image!"
+                            self.errorPromptField.isHidden = false
+                        }
                     }
                 }
             }

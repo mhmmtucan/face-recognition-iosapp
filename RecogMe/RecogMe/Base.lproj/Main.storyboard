@@ -119,15 +119,35 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tK8-oH-TcD">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" insetsLayoutMarginsFromSafeArea="NO" id="TlC-iw-FHT">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="3" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LcP-nd-HjY" userLabel="count">
+                                            <rect key="frame" x="92" y="234" width="191" height="130"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="120"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                </view>
+                                <blurEffect style="light"/>
+                            </visualEffectView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <viewLayoutGuide key="safeArea" id="O1u-W8-tvY"/>
                     </view>
                     <tabBarItem key="tabBarItem" title="Login" image="second" id="cPa-gy-q4n"/>
                     <connections>
+                        <outlet property="countLabel" destination="LcP-nd-HjY" id="Uj0-iA-kpo"/>
                         <outlet property="errorPromptField" destination="5Lo-6t-sN0" id="OVP-z9-PkU"/>
                         <outlet property="password" destination="rsh-uN-T3s" id="6fW-iF-dRO"/>
                         <outlet property="username" destination="WAx-iB-bLK" id="JHV-kF-hdQ"/>
+                        <outlet property="visView" destination="tK8-oH-TcD" id="wGg-LK-lWw"/>
                         <segue destination="6SW-hT-TMG" kind="show" identifier="login" id="vrQ-SK-uU1"/>
                     </connections>
                 </viewController>
@@ -214,6 +234,6 @@
         <image name="second" width="28" height="28"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="iWj-B0-Cbb"/>
+        <segue reference="vrQ-SK-uU1"/>
     </inferredMetricsTieBreakers>
 </document>

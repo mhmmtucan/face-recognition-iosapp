@@ -9,6 +9,7 @@
 import UIKit
 import Foundation
 import SwiftyJSON
+// estension for converting image to string
 extension UIImage {
     var highestQualityJPEGNSData:NSData { return UIImageJPEGRepresentation(self, 1.0)! as NSData }
     var highQualityJPEGNSData:NSData    { return UIImageJPEGRepresentation(self, 0.75)! as NSData}
@@ -16,14 +17,13 @@ extension UIImage {
     var lowQualityJPEGNSData:NSData     { return UIImageJPEGRepresentation(self, 0.25)! as NSData}
     var lowestQualityJPEGNSData:NSData  { return UIImageJPEGRepresentation(self, 0.0)! as NSData }
 }
-
+// extension for hiding keyborad whenever user tapped somewhere on screen
 extension UIViewController {
     func hideKeyboardWhenTappedAround() {
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
     }
-    
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
@@ -34,9 +34,9 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
     @IBOutlet var password: UITextField!
     @IBOutlet var errorPromptField: UILabel!
     let picker = UIImagePickerController()
-    
     var chosenImage:UIImage = UIImage()
     
+    // for prompting user, processing image
     let alert = UIAlertController(title: nil, message: "Processing image...", preferredStyle: .alert)
     let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
     
@@ -47,7 +47,7 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
         username.textContentType = UITextContentType("")
         password.textContentType = UITextContentType("")
         picker.delegate = self
-        clearDefaults()
+        //clearDefaults()
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.gray
         // Do any additional setup after loading the view, typically from a nib.
@@ -57,19 +57,19 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
+    // for pressing enter
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         self.registerBtnPressed((Any).self)
         self.view.endEditing(true)
         return false
     }
-    
+    // deleting username and keyboard, place this code in viewdidload and run, after delete this
     func clearDefaults() {
         let domain = Bundle.main.bundleIdentifier!
         UserDefaults.standard.removePersistentDomain(forName: domain)
         UserDefaults.standard.synchronize()
     }
-    
+    // using default camera
     func openCamera() {
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
             picker.allowsEditing = true
@@ -77,17 +77,17 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
             picker.cameraCaptureMode = .photo
             picker.cameraDevice = .front
             picker.modalPresentationStyle = .formSheet
-            picker.showsCameraControls = false
+            picker.showsCameraControls = true
             // can be turned to automatic shoot
             present(picker,animated: true,completion: {
-                self.picker.takePicture()
+                //self.picker.takePicture()
             })
         }
         else {
             noCamera()
         }
     }
-    
+    // if no camera, ie. working in simulator, give error
     func noCamera(){
         let alertVC = UIAlertController(
             title: "No Camera",
@@ -100,26 +100,27 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
         alertVC.addAction(okAction)
         present(alertVC, animated: true,completion: nil)
     }
-    
+    // if no camare is avaliable open library
     func openPhotoLibrary() {
         picker.allowsEditing = true
         picker.sourceType = .photoLibrary
         present(picker, animated: true, completion: nil)
     }
-    
+    // picking image whether using camera or photo library
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage
         
         // add username and password to container
         let hashedPass = password.text?.utf8.md5
         Global.container[username.text!] = hashedPass?.rawValue
-        
+        UserDefaults.standard.set(Global.container, forKey: "container")
         let str64 = imageTobase64(image: chosenImage)
         
         
         // make request in order to enrollment of photo
         sendRequest(image: str64, gallery: "MyGallerry", subject: username.text!)
         
+        // when picking is complete, prompt user to wait for processing
         dismiss(animated: true, completion: {
             self.tabBarController?.tabBar.isHidden = true
             
@@ -128,11 +129,11 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
             self.present(self.alert, animated: true, completion: nil)
         })
     }
-    
+    // cancel button for image picking
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: false, completion: nil)
     }
-    
+    // converting image to string
     func imageTobase64(image: UIImage) -> String {
         var base64String = ""
         let  cim = CIImage(image: image)
@@ -142,10 +143,11 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
         }
         return base64String
     }
-    
+    // register button
     @IBAction func registerBtnPressed(_ sender: Any) {
         errorPromptField.isHidden = true
         errorPromptField.text = ""
+        // error cases
         if (username.text?.isEmpty)! {
             errorPromptField.text = "Username should be filled."
             errorPromptField.isHidden = false
@@ -165,7 +167,7 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
             errorPromptField.isHidden = false
             return
         }
-
+        // ask user what he want to use
         let camaraAlert = UIAlertController(title: "Photo?", message: "Take a photo with camera or choose a photo from Photo Library", preferredStyle: UIAlertControllerStyle.alert)
         
         camaraAlert.addAction(UIAlertAction(title: "Camera", style: .cancel, handler: { (action: UIAlertAction!) in
@@ -185,7 +187,7 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
             vc.usernameString = self.username.text!
         }
     }
-    
+    // make a request to the server
     func sendRequest(image: String, gallery: String, subject: String) {
         /* Configure session, choose between:
          * defaultSessionConfiguration
@@ -256,8 +258,8 @@ class FirstViewController: UIViewController, UIImagePickerControllerDelegate, UI
                             self.errorPromptField.isHidden = false
                         }
                     }
-                    
                 } else {
+                    // if succeded send user to another view, and inform the logged in
                     DispatchQueue.main.async {
                         self.dismiss(animated: true, completion: {
                             self.tabBarController?.tabBar.isHidden = false

@@ -15,7 +15,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     func saveInfo() {
         UserDefaults.standard.set(Global.container, forKey: "container")
-        
     }
     
     func loadInfo() {
