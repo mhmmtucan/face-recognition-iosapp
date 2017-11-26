@@ -1,4 +1,5 @@
 # Face Recognition iOS APP Example Using API
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/381383b0445e4adf92f4d8e4d117dd56)](https://www.codacy.com/app/mhmmtucan/face-recognition-iosapp?utm_source=github.com&utm_medium=referral&utm_content=mhmmtucan/face-recognition-iosapp&utm_campaign=badger)
 ![](https://travis-ci.org/mhmmtucan/face-recognition-iosapp.svg?branch=master) [![GitHub license](https://img.shields.io/github/license/mhmmtucan/face-recognition-iosapp.svg)](https://github.com/mhmmtucan/face-recognition-iosapp/blob/master/LICENSE) 
 
 This repository provides a working sample of face recognition system which is built to be a second factor 
