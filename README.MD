@@ -1,5 +1,5 @@
 # Face Recognition iOS APP Example Using API
-![](https://travis-ci.org/mhmmtucan/face-recognition-iosapp.svg?branch=master)
+![](https://travis-ci.org/mhmmtucan/face-recognition-iosapp.svg?branch=master) [![GitHub license](https://img.shields.io/github/license/mhmmtucan/face-recognition-iosapp.svg)](https://github.com/mhmmtucan/face-recognition-iosapp/blob/master/LICENSE) 
 
 This repository provides a working sample of face recognition system which is built to be a second factor 
 of a two factor authentication. [Kairos API](https://www.kairos.com/) used for face detection and recognition. By using this sample someone can analyze Kairos API and face recognition function in thier iOS environment. 
@@ -33,3 +33,6 @@ If someone try to login using username-password, it will prompt error.
 ![](https://github.com/mhmmtucan/project1-1/blob/master/docs/gifs/error.gif)
 
 To get maximum benefit from API there is a [guidance](https://www.kairos.com/docs/api/best-practices) for how to take photos in Kairos API docs.
+
+## Version
+* 1.0
